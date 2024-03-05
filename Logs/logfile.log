@@ -1,1 +1,6 @@
-2024-03-01 17:57:22,184 :INFO : utilities.createlog :------ test_homePageTitle started ------------
+2024-03-05 18:37:07,416 :INFO : utilities.createlog :------ test_homePageTitle started ------------
+2024-03-05 18:37:37,209 :INFO : utilities.createlog :test_homePageTitle: Passed
+2024-03-05 18:37:39,367 :INFO : utilities.createlog :------ test_add_timesheet started ------------
+2024-03-05 18:38:07,607 :INFO : utilities.createlog :test_add_timesheet: Passed
+2024-03-05 18:38:09,713 :INFO : utilities.createlog :------ test_add_timesheet started ------------
+2024-03-05 18:38:38,144 :INFO : utilities.createlog :test_add_absence: Passed
