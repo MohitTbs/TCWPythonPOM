@@ -1,6 +1,6 @@
-2024-03-06 15:07:26,827 :INFO : utilities.createlog :------ test_homePageTitle started ------------
-2024-03-06 15:07:41,368 :INFO : utilities.createlog :test_homePageTitle: Passed
-2024-03-06 15:07:43,326 :INFO : utilities.createlog :------ test_add_timesheet started ------------
-2024-03-06 15:08:11,102 :INFO : utilities.createlog :test_add_timesheet: Passed
-2024-03-06 15:08:13,205 :INFO : utilities.createlog :------ test_add_timesheet started ------------
-2024-03-06 15:08:39,129 :INFO : utilities.createlog :test_add_absence: Passed
+2024-03-06 18:03:05,774 :INFO : utilities.createlog :---------test_homePageTitle: Started--------------------------------
+2024-03-06 18:03:27,405 :INFO : utilities.createlog :test_homePageTitle: Passed
+2024-03-06 18:03:27,609 :INFO : utilities.createlog :---------test_add_timesheet: Started--------------------------------
+2024-03-06 18:03:55,537 :INFO : utilities.createlog :test_add_timesheet: Passed
+2024-03-06 18:03:55,753 :INFO : utilities.createlog :---------test_add_absence: Started--------------------------------
+2024-03-06 18:04:24,427 :INFO : utilities.createlog :test_add_absence: Passed

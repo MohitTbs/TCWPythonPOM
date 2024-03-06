@@ -9,6 +9,7 @@ import shutil
 import time
 from allure_pytest import *
 from allure_commons import *
+import traceback
 
 from utilities.createlog import LogGen
 
@@ -27,8 +28,9 @@ def pytest_runtest_makereport(item, call):
 
 
 @pytest.fixture(autouse=True)
-def setup(browser,request):
+def setup(browser, request):
     global driver
+    LogGen.static_logger.info("---------" + str(request.node.name) + ": " + "Started--------------------------------")
     if browser == 'chrome':
         driver = webdriver.Chrome()
     elif browser == 'firefox':
@@ -42,6 +44,7 @@ def setup(browser,request):
     # InitailizeDriver.init_driver(driver)
     request.cls.driver = driver
 
+
 @pytest.fixture(autouse=True)
 def tear_down(request):
     yield
@@ -50,7 +53,6 @@ def tear_down(request):
         print(sys.path[0] + "\\Screenshots\\" + str(item.name) + '.png')
         driver.save_screenshot(sys.path[0] + "\\Screenshots\\" + str(item.name) + '.png')
         allure.attach(driver.get_screenshot_as_png(), name=str(item.name), attachment_type=AttachmentType.PNG)
-        LogGen.static_logger.info(str(item.name) + ": " + "failed")
     else:
         LogGen.static_logger.info(str(item.name) + ": " + "Passed")
     driver.close()
@@ -81,3 +83,12 @@ def pytest_addoption(parser):  # This will get ṭhe value from CLI /hooks
 @pytest.fixture()
 def browser(request):
     return request.config.getoption("--browser")  # This will return the browser value to setup method
+
+
+def pytest_exception_interact(node, call, report):
+    if report.failed:
+        test_name = node.name
+        LogGen.static_logger.error(f"---------------------*********Test '{test_name}' failed:--************----")
+        traceback_str = str(call.excinfo.getrepr())
+        LogGen.static_logger.error(traceback_str)
+        LogGen.static_logger.info("---------*******************---------------------***********---------------")

@@ -9,7 +9,6 @@ from pageObjects.TimesheetPage import TimesheetPage
 
 class Test_Timesheet:
     def test_add_timesheet(self):
-        LogGen.static_logger.info("------ test_add_timesheet started ------------")
         self.lp = LoginPage(self.driver)
         self.lp.go_to_site(CommonData.url)
         self.lp.login_to_app(CommonData.username, CommonData.password)
@@ -24,7 +23,6 @@ class Test_Timesheet:
         assert flag == True
 
     def test_add_absence(self):
-        LogGen.static_logger.info("------ test_add_timesheet started ------------")
         self.lp = LoginPage(self.driver)
         self.lp.go_to_site(CommonData.url)
         self.lp.login_to_app(CommonData.username, CommonData.password)
