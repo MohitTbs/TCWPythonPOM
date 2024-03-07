@@ -1,5 +1,6 @@
 import allure
 import pytest
+import pytest_html
 from allure_commons.types import AttachmentType
 from selenium import webdriver
 from driverfactory.initializeDriver import InitailizeDriver
@@ -19,13 +20,53 @@ def setlogs():
     createlog.LogGen.loggen()
 
 
+# @pytest.hookimpl(hookwrapper=True, tryfirst=True)
+# def pytest_runtest_makereport(item, call):
+#     outcome = yield
+#     rep = outcome.get_result()
+#     setattr(item, "rep_" + rep.when, rep)
+#     return rep
+
 @pytest.hookimpl(hookwrapper=True, tryfirst=True)
 def pytest_runtest_makereport(item, call):
     outcome = yield
+    pytest_html = item.config.pluginmanager.getplugin('html')
     rep = outcome.get_result()
     setattr(item, "rep_" + rep.when, rep)
-    return rep
+    extra = getattr(rep, 'extra', [])
+    if rep.when == 'call' or rep.when == "setup":
+        xfail = hasattr(rep, 'wasxfail')
+        if (rep.skipped and xfail) or (rep.failed and not xfail):
+            file_name = rep.nodeid.replace("::", "_") + ".png"
+            # file_name = 'ss.png'#"screenshot" + now.strftime("%S%H%d%m%Y") + ".png"
+            driver.get_screenshot_as_file(file_name)
+            # if file_name:
+            html = '<div><img src="%s" alt="screenshot" style="width:304px;height:228px;" ' \
+                   'onclick="window.open(this.src)" align="right"/></div>' % file_name
+            extra.append(pytest_html.extras.image(file_name))
+            # extra.append(pytest_html.extras.html(html))
+        rep.extra = extra
+    # return rep
 
+
+# @pytest.hookimpl(hookwrapper=True)
+# def pytest_runtest_makereport(item, call):
+#     # now = datetime.now()
+#     pytest_html = item.config.pluginmanager.getplugin('html')
+#     outcome = yield
+#     report = outcome.get_result()
+#     extra = getattr(report, 'extra', [])
+#     if report.when == 'call' or report.when == "setup":
+#         xfail = hasattr(report, 'wasxfail')
+#         if (report.skipped and xfail) or (report.failed and not xfail):
+#             file_name = report.nodeid.replace("::", "_") + ".png"
+#             # file_name = "screenshot" + now.strftime("%S%H%d%m%Y") + ".png"
+#             # _capture_screenshot(file_name)
+#             if file_name:
+#                 html = '<div><img src="%s" alt="screenshot" style="width:304px;height:228px;" ' \
+#                        'onclick="window.open(this.src)" align="right"/></div>' % file_name
+#                 extra.append(pytest_html.extras.html(html))
+#         report.extra = extra
 
 @pytest.fixture(autouse=True)
 def setup(browser, request):
