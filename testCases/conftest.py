@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import allure
 import pytest
 import pytest_html
@@ -27,31 +29,33 @@ def setlogs():
 #     setattr(item, "rep_" + rep.when, rep)
 #     return rep
 
-@pytest.hookimpl(hookwrapper=True, tryfirst=True)
+@pytest.hookimpl(hookwrapper=True)
 def pytest_runtest_makereport(item, call):
-    outcome = yield
+    now = datetime.now()
     pytest_html = item.config.pluginmanager.getplugin('html')
-    rep = outcome.get_result()
-    setattr(item, "rep_" + rep.when, rep)
-    extra = getattr(rep, 'extra', [])
-    if rep.when == 'call' or rep.when == "setup":
-        xfail = hasattr(rep, 'wasxfail')
-        if (rep.skipped and xfail) or (rep.failed and not xfail):
-            file_name = rep.nodeid.replace("::", "_") + ".png"
-            # file_name = 'ss.png'#"screenshot" + now.strftime("%S%H%d%m%Y") + ".png"
-            driver.get_screenshot_as_file(file_name)
-            # if file_name:
-            html = '<div><img src="%s" alt="screenshot" style="width:304px;height:228px;" ' \
-                   'onclick="window.open(this.src)" align="right"/></div>' % file_name
-            extra.append(pytest_html.extras.image(file_name))
-            # extra.append(pytest_html.extras.html(html))
-        rep.extra = extra
-    # return rep
+    outcome = yield
+    report = outcome.get_result()
+    setattr(item, "rep_" + report.when, report)
+    extra = getattr(report, 'extra', [])
+    if report.when == 'call' or report.when == "setup":
+        xfail = hasattr(report, 'wasxfail')
+        if (report.skipped and xfail) or (report.failed and not xfail):
+            # file_name = report.nodeid.replace("::", "_") + ".png"
+            file_name = "screenshot" + now.strftime("%S%H%d%m%Y") + ".png"
+            # _capture_screenshot(file_name)
+            driver.save_screenshot(sys.path[0] + "\\Reports\\"+file_name)
+            if file_name:
+                html = '<div><img src="%s" alt="screenshot" style="width:304px;height:228px;" ' \
+                       'onclick="window.open(this.src)" align="right"/></div>' % file_name
+                extra.append(pytest_html.extras.html(html))
+        report.extra = extra
+    return report
 
 
+#  This one is actually attaching the ss to the html report
 # @pytest.hookimpl(hookwrapper=True)
 # def pytest_runtest_makereport(item, call):
-#     # now = datetime.now()
+#     now = datetime.now()
 #     pytest_html = item.config.pluginmanager.getplugin('html')
 #     outcome = yield
 #     report = outcome.get_result()
@@ -59,14 +63,16 @@ def pytest_runtest_makereport(item, call):
 #     if report.when == 'call' or report.when == "setup":
 #         xfail = hasattr(report, 'wasxfail')
 #         if (report.skipped and xfail) or (report.failed and not xfail):
-#             file_name = report.nodeid.replace("::", "_") + ".png"
-#             # file_name = "screenshot" + now.strftime("%S%H%d%m%Y") + ".png"
+#             # file_name = report.nodeid.replace("::", "_") + ".png"
+#             file_name = "screenshot" + now.strftime("%S%H%d%m%Y") + ".png"
 #             # _capture_screenshot(file_name)
+#             driver.save_screenshot(sys.path[0] + "\\Reports\\"+file_name)
 #             if file_name:
 #                 html = '<div><img src="%s" alt="screenshot" style="width:304px;height:228px;" ' \
 #                        'onclick="window.open(this.src)" align="right"/></div>' % file_name
 #                 extra.append(pytest_html.extras.html(html))
 #         report.extra = extra
+
 
 @pytest.fixture(autouse=True)
 def setup(browser, request):
@@ -86,16 +92,28 @@ def setup(browser, request):
     request.cls.driver = driver
 
 
+# @pytest.fixture(autouse=True)
+# def tear_down(request):
+#     yield
+#     item = request.node
+#     if item.rep_call.failed:
+#         print(sys.path[0] + "\\Screenshots\\" + str(item.name) + '.png')
+#         driver.save_screenshot(sys.path[0] + "\\Screenshots\\" + str(item.name) + '.png')
+#         allure.attach(driver.get_screenshot_as_png(), name=str(item.name), attachment_type=AttachmentType.PNG)
+#     else:
+#         LogGen.static_logger.info(str(item.name) + ": " + "Passed")
+#     driver.close()
+
+
 @pytest.fixture(autouse=True)
 def tear_down(request):
     yield
-    item = request.node
-    if item.rep_call.failed:
-        print(sys.path[0] + "\\Screenshots\\" + str(item.name) + '.png')
-        driver.save_screenshot(sys.path[0] + "\\Screenshots\\" + str(item.name) + '.png')
-        allure.attach(driver.get_screenshot_as_png(), name=str(item.name), attachment_type=AttachmentType.PNG)
+    if hasattr(request.node, "rep_call") and request.node.rep_call.failed:
+        print(sys.path[0] + "\\Screenshots\\" + str(request.node.name) + '.png')
+        driver.save_screenshot(sys.path[0] + "\\Screenshots\\" + str(request.node.name) + '.png')
+        allure.attach(driver.get_screenshot_as_png(), name=str(request.node.name), attachment_type=AttachmentType.PNG)
     else:
-        LogGen.static_logger.info(str(item.name) + ": " + "Passed")
+        LogGen.static_logger.info(str(request.node.name) + ": " + "Passed")
     driver.close()
 
 

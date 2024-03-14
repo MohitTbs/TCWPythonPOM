@@ -13,3 +13,4 @@ class Test_Login:
         self.lp = LoginPage(self.driver)
         self.lp.go_to_site(CommonData.url)
         self.lp.login_to_app(CommonData.username, CommonData.password)
+        assert False
